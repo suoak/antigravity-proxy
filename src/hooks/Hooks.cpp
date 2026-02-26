@@ -2961,11 +2961,13 @@ BOOL WINAPI DetourCreateProcessW(
             // 注入 DLL 到子进程
             std::wstring dllPath = Injection::ProcessInjector::GetCurrentDllPath();
             if (!dllPath.empty()) {
-                const bool injected = Injection::ProcessInjector::InjectDll(lpProcessInformation->hProcess, dllPath);
+                std::string injectFailureReason;
+                const bool injected = Injection::ProcessInjector::InjectDll(lpProcessInformation->hProcess, dllPath, &injectFailureReason);
                 if (injected) {
                     Core::Logger::Info("[成功] 已注入目标进程: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ") - 父子关系建立");
                 } else {
-                    Core::Logger::Error("[失败] 注入目标进程失败: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")");
+                    Core::Logger::Error("[失败] 注入目标进程失败: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")" +
+                                       (injectFailureReason.empty() ? std::string("") : (", 原因: " + injectFailureReason)));
                 }
             } else {
                 Core::Logger::Error("[失败] 获取当前 DLL 路径失败，跳过注入: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")");
@@ -3069,11 +3071,13 @@ BOOL WINAPI DetourCreateProcessA(
             // 注入 DLL 到子进程
             std::wstring dllPath = Injection::ProcessInjector::GetCurrentDllPath();
             if (!dllPath.empty()) {
-                const bool injected = Injection::ProcessInjector::InjectDll(lpProcessInformation->hProcess, dllPath);
+                std::string injectFailureReason;
+                const bool injected = Injection::ProcessInjector::InjectDll(lpProcessInformation->hProcess, dllPath, &injectFailureReason);
                 if (injected) {
                     Core::Logger::Info("[成功] 已注入目标进程: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ") - 父子关系建立");
                 } else {
-                    Core::Logger::Error("[失败] 注入目标进程失败: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")");
+                    Core::Logger::Error("[失败] 注入目标进程失败: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")" +
+                                       (injectFailureReason.empty() ? std::string("") : (", 原因: " + injectFailureReason)));
                 }
             } else {
                 Core::Logger::Error("[失败] 获取当前 DLL 路径失败，跳过注入: " + appName + " (PID: " + std::to_string(lpProcessInformation->dwProcessId) + ")");
